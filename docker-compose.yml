@@ -1,0 +1,136 @@
+services:
+  # ---------------------------------------------------------------------------
+  # MOSQUITTO
+  # ---------------------------------------------------------------------------
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    ports:
+      - "${MQTT_PORT}:1883"  # host_port(my pc):container_port
+    volumes:
+      - ./config/mosquitto:/mosquitto/config:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -i healthcheck -W 3"]  # Docker asks Mosquitto to confirm it is operational
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # INFLUXDB
+  # ---------------------------------------------------------------------------
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    ports:
+      - "${INFLUX_PORT}:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUX_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # PUBLISHER
+  # ---------------------------------------------------------------------------
+  publisher:
+    build:
+      context: .  # current directory for dockerfile
+      dockerfile: services/publisher/Dockerfile
+    container_name: publisher
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MQTT_HOST=${MQTT_HOST}
+      - MQTT_PORT=${MQTT_PORT}
+    depends_on:  # start first Mosquitto and then publisher
+      mosquitto:
+        condition: service_healthy
+    restart: unless-stopped
+  
+  # ---------------------------------------------------------------------------
+  # BRIDGE
+  # ---------------------------------------------------------------------------
+  bridge:
+    build:
+      context: .
+      dockerfile: services/bridge/Dockerfile
+    container_name: bridge
+    environment:
+      - MQTT_HOST=${MQTT_HOST}
+      - MQTT_PORT=${MQTT_PORT}
+      - INFLUX_HOST=${INFLUX_HOST}
+      - INFLUX_PORT=${INFLUX_PORT}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ========================================================================
+  # GRAFANA
+  # ========================================================================
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ========================================================================
+  # FASTAPI
+  # ========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    container_name: fastapi
+    ports:
+      - "${FASTAPI_PORT}:8000"
+    environment:
+      - INFLUX_HOST=${INFLUX_HOST}
+      - INFLUX_PORT=${INFLUX_PORT}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  influxdb_data:
+  grafana_data:
