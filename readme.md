@@ -181,7 +181,7 @@ docker compose up --build
 | Service | URL |
 |:---|:---|
 | InfluxDB UI | http://localhost:8086 |
-| Grafana (Dashboard) | http://localhost:3000 |
+| Grafana (Dashboard) | http://localhost:3000/dashboards |
 | FastAPI (Swagger UI) | http://localhost:8000/docs |
 
 > **Note:**  
