@@ -46,7 +46,7 @@ Despite its academic nature, the project was conceived with an **industry-ready*
 
 - [Key Experimental Results](#key-experimental-results)
 - [Project Context & Origins](#project-context--origins)
-- [Technical Overview](#technical-overview)
+- [Overview](#overview)
 - [Technology Stack](#technology-stack)
 - [System Architecture](#system-architecture)
   - [Data Acquisition & Extensibility](#data-acquisition--extensibility)
@@ -63,7 +63,7 @@ Despite its academic nature, the project was conceived with an **industry-ready*
   - [4. Dynamic Sensor Registration (Registry Pattern)](#4-dynamic-sensor-registration-registry-pattern)
 - [License](#license)
 
-## Technical Overview
+## Overview
 
 Remote monitoring of physiological parameters requires the continuous collection of data streams from **heterogeneous sources**, often at **high frequency** and operating over **unreliable networks**. Traditional synchronous systems (client-server) struggle to scale and to guarantee **data integrity** in these scenarios.
 
