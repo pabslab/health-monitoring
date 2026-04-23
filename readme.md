@@ -40,7 +40,7 @@ Despite its academic nature, the project was conceived with an **industry-ready*
 | **Co-supervisor** | Ing. Palma Errico |
 | **A.Y.** | 2024/2025 |
 
-> **[Official Thesis Document (Italian)](docs/bachelor-thesis-italian.pdf)** - *The codebase includes minor post-thesis improvements documented in the [Notes on Project Evolution](#notes-on-project-evolution-post-thesis) section.*
+> **[Official Thesis Document (Italian)](docs/bachelor-thesis-italian.pdf)** - *The codebase includes minor post-thesis improvements documented in the [Post-Thesis Evolution](#post-thesis-evolution) section.*
 
 ## Table of Contents
 
@@ -51,14 +51,14 @@ Despite its academic nature, the project was conceived with an **industry-ready*
 - [System Architecture](#system-architecture)
   - [Data Acquisition & Extensibility](#data-acquisition--extensibility)
   - [Data Modeling & Contracts](#data-modeling--contracts)
-  - [Delivery Semantics and Reliability](#delivery-semantics-and-reliability)
+  - [Delivery Semantics & Reliability](#delivery-semantics--reliability)
 - [Repository Structure](#repository-structure)
 - [Quick Start](#quick-start)
 - [REST API](#rest-api)
-- [Security Analysis and Future Roadmap](#security-analysis-and-future-roadmap)
-- [Notes on Project Evolution (post-thesis)](#notes-on-project-evolution-post-thesis)
+- [Security & Future Roadmap](#security--future-roadmap)
+- [Post-Thesis Evolution](#post-thesis-evolution)
   - [1. Proof of Concept: Architecture Extensibility (Smart Ring)](#1-proof-of-concept-architecture-extensibility-smart-ring)
-  - [2. Global Configuration Refactoring and Validation Strategy (Pydantic)](#2-global-configuration-refactoring-and-validation-strategy-pydantic)
+  - [2. Configuration & Validation Strategy](#2-configuration--validation-strategy)
   - [3. InfluxDB Schema Refactoring](#3-influxdb-schema-refactoring)
   - [4. Dynamic Sensor Registration (Registry Pattern)](#4-dynamic-sensor-registration-registry-pattern)
 - [License](#license)
@@ -114,7 +114,7 @@ The pipeline enforces explicit data contracts to decouple the raw acquisition lo
 
 * **DataPoint (The Transport DTO):** This is the finalized, system-wide contract. The `BaseDataSource` acts as a Gatekeeper: it iterates over `MappedRow` objects, performs final sanitization (e.g., stripping `None` values which are illegal in InfluxDB, forcing string types on tags), and produces a `DataPoint`. This object is optimized for MessagePack serialization with shortened keys (`ts`, `m`, `dt`, `di`) to minimize network overhead.
 
-### Delivery Semantics and Reliability
+### Delivery Semantics & Reliability
 
 The core strength of the system is its robustness: each component signals successful processing only after the next stage has confirmed reception. This creates a chain that implements a solid **at-least-once delivery semantic**.
 
@@ -199,11 +199,11 @@ The interface exposes four endpoints, automatically documented via OpenAPI/Swagg
 | `/stats/bcg` | GET | Aggregate statistics (mean, std dev, min, max, apnea events) |
 | `/predict/patient-status` | POST | Heuristic inference on subject status (signal variance) |
 
-## Security Analysis and Future Roadmap
+## Security & Future Roadmap
 
 While the current architecture successfully implements a robust data ingestion pipeline, transitioning from an academic proof of concept to a production-ready healthcare system requires addressing specific security boundaries. The following mitigation roadmap has been identified following a *Defense in Depth* analysis.
 
-### High Priority - Network Security and Transport
+### High Priority - Network Security & Transport
 
 - **Enable MQTTS (TLS):** Current MQTT communication operates over standard TCP (port 1883). Implementing TLS (port 8883) with CA certificates is critical to encrypt biometric payloads in transit and prevent network sniffing.
 - **Broker Authentication:** Implement client credentials (username/password or mutual TLS client certificates) to prevent unauthorized publishing or subscription (broker spoofing).
@@ -218,7 +218,7 @@ While the current architecture successfully implements a robust data ingestion p
 
 The system currently validates structural integrity (discarding `None` values and empty strings to protect the InfluxDB Write API). Future iterations could extend this with semantic validation (e.g., rejecting physiologically impossible values such as 9999 bpm) or digital payload signatures to ensure data non-repudiation.
 
-## Notes on Project Evolution (post-thesis)
+## Post-Thesis Evolution
 
 The code in this repository includes some updates and proof-of-concept (PoC) implementations developed after the official thesis document (located in the `docs/` folder) was written.
 
@@ -230,7 +230,7 @@ The code in this repository includes some updates and proof-of-concept (PoC) imp
 
 > **Note:** This integration serves exclusively as field validation of the transport pipeline (MQTT) and persistence layer (Bridge). Grafana dashboards and FastAPI endpoints remain focused on the BCG dataset only.
 
-### 2. Global Configuration Refactoring and Validation Strategy (Pydantic)
+### 2. Configuration & Validation Strategy
 
 Although the official thesis documentation references the use of `os.getenv` for configuration, the codebase has been significantly upgraded to implement Pydantic Settings across the entire infrastructure (API, Publisher, and Bridge).
 
