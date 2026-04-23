@@ -40,7 +40,7 @@ Despite its academic nature, the project was conceived with an **industry-ready*
 | **Co-supervisor** | Ing. Palma Errico |
 | **A.Y.** | 2024/2025 |
 
-> **[Official Thesis Document (Italian)](docs/thesis.pdf)** - *The codebase includes minor post-thesis improvements documented in the [Notes on Project Evolution](#notes-on-project-evolution-post-thesis) section.*
+> **[Official Thesis Document (Italian)](<docs/bachelor-thesis-italian.pdf>)** - *The codebase includes minor post-thesis improvements documented in the [Notes on Project Evolution](#notes-on-project-evolution-post-thesis) section.*
 
 ## Table of Contents
 
