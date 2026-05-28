@@ -1,4 +1,4 @@
-# Distributed IoT Architecture for Remote Monitoring of Physiological Parameters
+# A Distributed IoT Architecture for Remote Monitoring of Physiological Parameters
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
@@ -7,7 +7,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-REST-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Grafana](https://img.shields.io/badge/Grafana-10.x-F46800.svg?logo=grafana&logoColor=white)](https://grafana.com/)
 
-**High-performance distributed IoT architecture (11k data points/s) with a zero data loss guarantee for Remote Patient Monitoring (RPM) scenarios. A scalable and modular system applying advanced design patterns to a modern stack (FastAPI, MQTT, InfluxDB, Docker).**
+**A distributed IoT architecture optimized for high-frequency Remote Patient Monitoring (RPM); built as a scalable and modular system applying advanced design patterns to a modern stack (Python, MQTT, InfluxDB, FastAPI, Grafana, Docker). In local stress tests, the system successfully processed 11,000 data points/s with 0% data loss.**
 
 ![Grafana Dashboard](docs/images/figure5.1.png)
 *Figure 1: Near real-time telemetry dashboard visualizing high-frequency BCG signals and automated apnea event detection.*
